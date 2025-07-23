@@ -7,7 +7,8 @@ bot = telebot.TeleBot(TOKEN)
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
     welcome_text = (
-        "📢 Қош келдіңіз!
+        text = "👋 Кош келдіңіз!"
+
 
 "
         "🎓 Бұл жерде сіз YouTube курсына жазыла аласыз.
