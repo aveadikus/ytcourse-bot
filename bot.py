@@ -1,58 +1,33 @@
+# -*- coding: utf-8 -*-
 import telebot
-from telebot import types
-import os
 
-TOKEN = os.environ.get("BOT_TOKEN")  # Token қоршаған ортадан алынады
-OWNER_ID = os.environ.get("OWNER_ID")  # Иесі (сатушы) ID
-
+TOKEN = "YOUR_BOT_TOKEN"
 bot = telebot.TeleBot(TOKEN)
 
-# Бастапқы хабарлама
 @bot.message_handler(commands=['start'])
-def start(message):
-    markup = types.InlineKeyboardMarkup()
-    markup.add(
-        types.InlineKeyboardButton("💼 Стандарт пакет", callback_data='standard'),
-        types.InlineKeyboardButton("👑 Алтын пакет", callback_data='gold')
+def send_welcome(message):
+    welcome_text = (
+        "📢 Қош келдіңіз!
+
+"
+        "🎓 Бұл жерде сіз YouTube курсына жазыла аласыз.
+"
+        "Төмендегі пакеттердің бірін таңдаңыз:
+
+"
+        "💼 *Стандарт пакет* – 15 000 ₸ (50% жеңілдікпен)
+"
+        "🪙 *Алтын пакет* – 75 000 ₸ (1 ай кері байланыс)
+
+"
+        "💳 Төлем үшін карта: 4400 1234 5678 9012
+"
+        "🧾 Төлем жасаған соң, чекті маған жеке жіберіңіз: @aveadikus"
     )
-    bot.send_message(message.chat.id, "Курс таңдаңыз:", reply_markup=markup)
+    bot.send_message(message.chat.id, welcome_text, parse_mode="Markdown")
 
-# Түйме басылғанда
-@bot.callback_query_handler(func=lambda call: True)
-def handle_package_selection(call):
-    if call.data == 'standard':
-        text = "💼 *Стандарт пакет*"
-💸 Бағасы: *20 000₸* → 50% жеңілдікпен *10 000₸*
-
-Төлем реквизиті:
-"https://pay.kaspi.kz/pay/52bubdrg\n\n"
-
-🧾 Чек жіберген соң, сізге курс жіберіледі."
-    elif call.data == 'gold':
-        text = "👑 *Алтын пакет*"
-💸 Бағасы: *150 000₸* → 50% жеңілдікпен *75 000₸*
-📩 1 ай кері байланыс
-
-Төлем реквизиті:
-"https://pay.kaspi.kz/pay/52bubdrg\n\n"
-
-🧾 Чек жіберген соң, сізге курс жіберіледі."
-    else:
-        return
-
-    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    markup.add("🧾 Чекті жіберу")
-    bot.send_message(call.message.chat.id, text, reply_markup=markup, parse_mode='Markdown')
-
-# Чек жібергенде
-@bot.message_handler(func=lambda message: "чек" in message.text.lower())
-def handle_receipt(message):
-    user_info = f"👤 @{message.from_user.username} | {message.from_user.id}"
-    if message.photo:
-        bot.send_message(message.chat.id, "✅ Чек қабылданды! Курсты күтіңіз.")
-        bot.forward_message(OWNER_ID, message.chat.id, message.message_id)
-        bot.send_message(message.chat.id, f"📩 Маған жазу үшін: [Тікелей байланыс](https://t.me/{bot.get_me().username})", parse_mode="Markdown")
-    else:
-        bot.send_message(message.chat.id, "📸 Чек фотосын жіберіңіз!")
+@bot.message_handler(content_types=['text'])
+def echo_all(message):
+    bot.send_message(message.chat.id, "Сізге көмектесу үшін осындамын. Төлем жасаған соң, чек жіберіңіз. 📩")
 
 bot.infinity_polling()
